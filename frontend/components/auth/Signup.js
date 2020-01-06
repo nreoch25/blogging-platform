@@ -1,6 +1,7 @@
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Alert, Button, Form, FormGroup, Input } from "reactstrap";
-import { signup } from "../../actions/auth";
+import Router from "next/router";
+import { signup, isAuth } from "../../actions/auth";
 
 const Signup = () => {
   const [values, setValues] = useState({
@@ -14,6 +15,13 @@ const Signup = () => {
   });
 
   const { name, email, password, error, loading, message, showForm } = values;
+
+  useEffect(() => {
+    // Redirect to index if user is authenticated
+    if (isAuth()) {
+      Router.push("/");
+    }
+  }, []);
 
   const handleSubmit = async evt => {
     evt.preventDefault();

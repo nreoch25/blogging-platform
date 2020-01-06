@@ -36,6 +36,19 @@ export const signin = async user => {
   }
 };
 
+export const signout = async next => {
+  removeCookie("token");
+  removeLocalStorage("user");
+  next();
+
+  try {
+    const response = await axios.get(`${API}/signout`);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const setCookie = (key, value) => {
   if (process.browser) {
     cookie.set(key, value, { expires: 1 });
@@ -50,7 +63,7 @@ export const removeCookie = (key, value) => {
 
 export const getCookie = key => {
   if (process.browser) {
-    cookie.get(key);
+    return cookie.get(key);
   }
 };
 
@@ -75,12 +88,15 @@ export const authenticate = (data, next) => {
 export const isAuth = () => {
   if (process.browser) {
     const cookieChecked = getCookie("token");
+    console.log(cookieChecked);
     if (cookieChecked) {
       if (localStorage.getItem("user")) {
         return JSON.parse(localStorage.getItem("user"));
       } else {
         return false;
       }
+    } else {
+      return false;
     }
   }
 };
