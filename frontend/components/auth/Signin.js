@@ -1,10 +1,10 @@
 import { Fragment, useState } from "react";
+import Router from "next/router";
 import { Alert, Button, Form, FormGroup, Input } from "reactstrap";
-import { signup } from "../../actions/auth";
+import { signin, authenticate } from "../../actions/auth";
 
-const Signup = () => {
+const Signin = () => {
   const [values, setValues] = useState({
-    name: "Nigel Reoch",
     email: "nreoch9@gmail.com",
     password: "abc123",
     error: "",
@@ -13,12 +13,12 @@ const Signup = () => {
     showForm: true
   });
 
-  const { name, email, password, error, loading, message, showForm } = values;
+  const { email, password, error, loading, message, showForm } = values;
 
   const handleSubmit = async evt => {
     evt.preventDefault();
     setValues({ ...values, loading: true, error: false });
-    const data = await signup({ name, email, password });
+    const data = await signin({ email, password });
     if (data.error) {
       return setValues({
         ...values,
@@ -27,15 +27,11 @@ const Signup = () => {
         message: ""
       });
     }
-    setValues({
-      ...values,
-      name: "",
-      email: "",
-      password: "",
-      error: "",
-      loading: false,
-      message: data.message,
-      showForm: false
+    // save user token to cookie
+    // save user info to localstorage
+    // authenticate user
+    authenticate(data, () => {
+      Router.push(`/`);
     });
   };
 
@@ -49,14 +45,6 @@ const Signup = () => {
       {error && <Alert color="danger">{error}</Alert>}
       {message && <Alert color="info">{message}</Alert>}
       <Form onSubmit={handleSubmit}>
-        <FormGroup>
-          <Input
-            type="text"
-            value={name}
-            placeholder="Type your name"
-            onChange={handleChange("name")}
-          />
-        </FormGroup>
         <FormGroup>
           <Input
             type="email"
@@ -74,11 +62,11 @@ const Signup = () => {
           />
         </FormGroup>
         <Button type="submit" color="primary" block>
-          Signup
+          Signin
         </Button>
       </Form>
     </Fragment>
   );
 };
 
-export default Signup;
+export default Signin;
