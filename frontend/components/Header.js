@@ -42,14 +42,21 @@ const Header = () => {
               </Fragment>
             )}
             {isAuth() && (
-              <NavItem>
-                <NavLink
-                  style={{ cursor: "pointer" }}
-                  onClick={() => signout(() => Router.replace("/signin"))}
-                >
-                  Signout
-                </NavLink>
-              </NavItem>
+              <Fragment>
+                <NavItem>
+                  <Link href={isAuth().role === 0 ? "/user" : "/admin"}>
+                    <NavLink style={{ cursor: "pointer" }}>Dashboard</NavLink>
+                  </Link>
+                </NavItem>
+                <NavItem>
+                  <NavLink
+                    style={{ cursor: "pointer" }}
+                    onClick={() => signout(() => Router.replace("/signin"))}
+                  >
+                    Signout
+                  </NavLink>
+                </NavItem>
+              </Fragment>
             )}
           </Nav>
         </Collapse>

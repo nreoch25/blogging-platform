@@ -3,6 +3,11 @@ const jwt = require("jsonwebtoken");
 const expressJwt = require("express-jwt");
 const User = require("../models/user");
 
+const me = (req, res) => {
+  req.profile.hashed_password = undefined;
+  return res.json(req.profile);
+};
+
 const signup = (req, res) => {
   User.findOne({ email: req.body.email }).exec((err, user) => {
     if (user) {
@@ -69,9 +74,44 @@ const requireSignin = expressJwt({
   secret: process.env.JWT_SECRET
 });
 
+const authMiddleware = (req, res, next) => {
+  const authUserId = req.user._id;
+  User.findById(authUserId).exec((err, user) => {
+    if (err || !user) {
+      return res.status(400).json({
+        error: "User not found"
+      });
+    }
+    req.profile = user;
+    next();
+  });
+};
+const adminMiddleware = (req, res, next) => {
+  const adminUserId = req.user._id;
+  User.findById(adminUserId).exec((err, user) => {
+    if (err || !user) {
+      return res.status(400).json({
+        error: "User not found"
+      });
+    }
+
+    if (user.role !== 1) {
+      return res.status(400).json({
+        error: "Admin resource. Access denied"
+      });
+    }
+
+    req.profile = user;
+    next();
+  });
+};
+
 module.exports = {
   signup,
   signin,
   signout,
-  requireSignin
+  me,
+  requireSignin,
+  authMiddleware,
+  adminMiddleware
 };
